@@ -117,40 +117,62 @@ function fromJSON(proto, json) {
  */
 
 const cssSelectorBuilder = {
-  result: [],
+  result: '',
   element(value) {
-    this.result.push(value);
-    return this;
+    this.error(1);
+    const obj = Object.create(cssSelectorBuilder);
+    obj.i = 1;
+    obj.result = this.result + value;
+    return obj;
   },
   id(value) {
-    this.result.push(`#${value}`);
-    return this;
+    this.error(2);
+    const obj = Object.create(cssSelectorBuilder);
+    obj.i = 2;
+    obj.result = `${this.result}#${value}`;
+    return obj;
   },
   class(value) {
-    this.result.push(`.${value}`);
-    return this;
+    this.error(3);
+    const obj = Object.create(cssSelectorBuilder);
+    obj.i = 3;
+    obj.result = `${this.result}.${value}`;
+    return obj;
   },
   attr(value) {
-    this.result.push(`[${value}]`);
-    return this;
+    this.error(4);
+    const obj = Object.create(cssSelectorBuilder);
+    obj.i = 4;
+    obj.result = `${this.result}[${value}]`;
+    return obj;
   },
   pseudoClass(value) {
-    this.result.push(`:${value}`);
-    return this;
+    this.error(5);
+    const obj = Object.create(cssSelectorBuilder);
+    obj.i = 5;
+    obj.result = `${this.result}:${value}`;
+    return obj;
   },
   pseudoElement(value) {
-    this.result.push(`::${value}`);
-    return this;
+    this.error(6);
+    const obj = Object.create(cssSelectorBuilder);
+    obj.i = 6;
+    obj.result = `${this.result}::${value}`;
+    return obj;
   },
   combine(selector1, combinator, selector2) {
-    this.result.push(`${selector1 + combinator + selector2}`);
-    return this;
+    const obj = Object.create(cssSelectorBuilder);
+    obj.result = `${selector1.result} ${combinator} ${selector2.result}`;
+    return obj;
   },
   stringify() {
-    return this.result.join('');
+    return this.result;
+  },
+  error(curi) {
+    if (this.i > curi) throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    if (this.i === curi && (curi === 1 || curi === 2 || curi === 6)) throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
   },
 };
-
 
 module.exports = {
   Rectangle,
